@@ -5,9 +5,6 @@ import http from "http"
 import { Server } from "socket.io"
 import Message from "./models/Message.js"
 import Room from "./models/Room.js"
-import rooms from "./routes/rooms.js"
-import room from "./routes/room.js"
-import messages from "./routes/messages.js"
 import dotenv from "dotenv"
 
 dotenv.config()
@@ -31,9 +28,21 @@ const io = new Server(server, {
 })
 
 
-app.get("/rooms",rooms)
-app.get("/room/:id",room)
-app.get("/messages/:id",messages)
+app.get("/rooms", async (req,res) => {
+	const rooms = await Room.find()
+	res.json(rooms)
+})
+
+app.get("/room/:id", async (req,res) => {
+	const thatRoom = await Room.find({_id:req.params.id})
+	res.json(thatRoom[0].title)
+})
+
+app.get("/messages/:id", async (req,res) => {
+	const chatMessages = await Message.find({chatId:req.params.id})
+	res.json(chatMessages)
+})
+
 
 
 io.on("connection", socket => {
